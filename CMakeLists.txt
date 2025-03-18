@@ -1,3 +1,4 @@
+
 cmake_minimum_required(VERSION 3.28)
 project(bluffjack)
 
@@ -7,7 +8,9 @@ file(GLOB_RECURSE SOURCES "src/*.cpp")
 
 file(GLOB_RECURSE HEADERS "src/*.h")
 
-set(MAIN_SRC "src/main.cpp")
+set(MAIN_SRC "src/main.cpp"
+        src/exceptions/pot_exceptions.cpp
+        src/exceptions/pot_exceptions.h)
 
 list(REMOVE_ITEM SOURCES "${MAIN_SRC}")
 
