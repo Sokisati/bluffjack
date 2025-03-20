@@ -17,13 +17,25 @@ struct DifferentBetMatch: public std::exception {
     const char* what();
 };
 
-struct InsufficientFunds: public public std::exception {
+struct InsufficientFunds: public std::exception {
     const char* what();
 };
-struct BetMatchAttemptInvalid: public public std::exception {
+struct BetMatchAttemptInvalid: public std::exception {
     const char* what();
 };
-struct BetRaiseAmountExceedWallet: public public std::exception {
+struct BetRaiseAmountExceedWallet: public std::exception {
     const char* what();
 };
+struct InsufficientFundsToMatch: public std::exception {
+    const char* what();
+};
+struct BetRaiseAttemptWhileUnmatched: public std::exception {
+    const char* what();
+};
+struct BlindBetExceedWallet: public std::exception {
+    const char* what();
+};
+
+
+
 #endif //POT_EXCEPTIONS_H

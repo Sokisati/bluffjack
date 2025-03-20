@@ -32,3 +32,18 @@ const char * BetRaiseAmountExceedWallet::what()
 {
     return "Your wallet isn't fat enough to make that bet raise\n";
 }
+
+const char * InsufficientFundsToMatch::what()
+{
+    return "You don't have the sufficient money to match that bet raise\n";
+}
+
+const char * BetRaiseAttemptWhileUnmatched::what()
+{
+    return "You can't raise the bet while an unmatched bet raise is present\n";
+}
+
+const char * BlindBetExceedWallet::what()
+{
+    return "You don't have the sufficient money to match blind bet\n";
+}
