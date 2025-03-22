@@ -8,7 +8,6 @@
 #include "pot.h"
 #include "player.h"
 
-
 class Table
 {
     Pot pot;
@@ -31,6 +30,8 @@ public:
     unsigned int getPoorestWallet();
     void takeBlindBets();
     void gladosCardDrawCycle();
+    void startGame();
+    unsigned int getMaxBetRaiseAllowed();
 };
 
 

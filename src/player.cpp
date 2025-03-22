@@ -11,6 +11,7 @@ void Player::drawCard(Card cardToDraw)
 {
     knownDeck.removeCard(cardToDraw);
     handDeck.addCard(cardToDraw);
+    std::cout<<name<<" drew a card\n";
     this->numberOfCardsPossesed++;
 }
 
@@ -66,6 +67,7 @@ HandDeck Player::getHandDeck()
 
 void Player::printHand()
 {
+    std::cout<<name<<" hand:\n";
   handDeck.printDeck();
 }
 
@@ -139,14 +141,35 @@ void Player::giveMoney(unsigned int amount)
     money+=amount;
 }
 
-void Player::updateKnownDeck(GameDeck originalDeck)
+void Player::updateKnownDeck(HandDeck opponentHand)
 {
-    knownDeck=originalDeck;
+    for(Card card : opponentHand.getDeckVector())
+    {
+    if(card.getCardState()==up)
+    {
+    knownDeck.removeCard(card);
+    }
+    }
+}
+
+void Player::equaliseKnownDeck(GameDeck gameDeck)
+{
+    this->knownDeck = gameDeck;
 }
 
 void Player::printKnownDeck()
 {
     knownDeck.printDeck();
+}
+
+GameDeck Player::getKnownDeck()
+{
+    return knownDeck;
+}
+
+void Player::clearHand()
+{
+    handDeck.clearDeck();
 }
 
 unsigned int Player::getMoney()

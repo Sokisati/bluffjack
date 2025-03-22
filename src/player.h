@@ -34,8 +34,11 @@ public:
     void takeAllTheMoneyFromPot(Pot &pot);
     void printFinancialContent();
     void giveMoney(unsigned int amount);
-    void updateKnownDeck(GameDeck originalDeck);
+    void updateKnownDeck(HandDeck opponentHand);
+    void equaliseKnownDeck(GameDeck gameDeck);
     void printKnownDeck();
+    GameDeck getKnownDeck();
+    void clearHand();
 
     unsigned int getMoney();
     Player(std::string name,unsigned int deckMultiplier);

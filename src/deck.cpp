@@ -3,6 +3,8 @@
 //
 
 #include "deck.h"
+#include "iostream"
+#include "exceptions/card_exceptions.h"
 
 void Deck::addCard(Card cardToAdd)
 {
@@ -12,14 +14,15 @@ void Deck::addCard(Card cardToAdd)
 void Deck::removeCard(Card cardToRemove)
 {
 
-    //TODO: Exception
     for(int i=0; i<deckVector.size(); i++)
     {
         if(deckVector[i]==cardToRemove)
         {
             deckVector.erase(deckVector.begin()+i);
+            return;
         }
     }
+    throw CardToRemoveNotFoundInDeck();
 }
 
 unsigned int Deck::getNumberOfCards()
@@ -38,6 +41,7 @@ void Deck::printDeck()
     {
         card.printCard();
     }
+    std::cout<<"\n";
 }
 
 std::vector<Card> Deck::getDeckVector()

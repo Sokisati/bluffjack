@@ -25,6 +25,13 @@ void Table::debugEnv()
     takeBlindBets();
     dealInitialCards();
 
+    humanPlayer.printHand();
+
+    glados.printHand();
+
+    glados.updateKnownDeck(humanPlayer.getHandDeck());
+
+    glados.printKnownDeck();
 
 }
 
@@ -52,20 +59,12 @@ void Table::dealInitialCards()
     }
 
 
-
 }
 
 
 unsigned int Table::getPoorestWallet()
 {
-    if(glados.getMoney()>humanPlayer.getMoney())
-    {
-        return humanPlayer.getMoney();
-    }
-    else
-    {
-    return glados.getMoney();
-    }
+    return std::min(glados.getMoney(), humanPlayer.getMoney());
 }
 
 void Table::takeBlindBets()
@@ -76,6 +75,29 @@ void Table::takeBlindBets()
 
 void Table::gladosCardDrawCycle()
 {
+    double expectedValue = glados.getExpectedValue(glados.getKnownDeck(),humanPlayer.getHandDeck());
+
+    while(expectedValue>0)
+    {
+        glados.drawRandomCard(gameDeck);
+        expectedValue = glados.getExpectedValue(glados.getKnownDeck(),humanPlayer.getHandDeck());
+    }
+}
+
+void Table::startGame()
+{
+    while(glados.getMoney()>blindBet&&humanPlayer.getMoney()>blindBet)
+    {
+        dealInitialCards();
+        takeBlindBets();
+        gladosCardDrawCycle();
+
+    }
+}
+
+unsigned int Table::getMaxBetRaiseAllowed()
+{
+    return std::min(getPoorestWallet(),pot.getMaxBetRaiseAllowed());
 }
 
 
