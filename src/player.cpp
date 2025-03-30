@@ -5,7 +5,7 @@
 #include "player.h"
 #include "iostream"
 #include "exceptions/pot_exceptions.h"
-
+#include "cmath"
 
 void Player::drawCard(Card cardToDraw)
 {
@@ -282,6 +282,68 @@ double Bot::calculateAftermathWinningProbability(GameDeck knownDeck,HandDeck opp
 Bot::Bot(std::string name, unsigned int deckMultiplier)
     : Player(name, deckMultiplier)
 {
+
+}
+
+bool Bot::matchBetOrNot(unsigned int betRaiseForRound,HandDeck opponentDeck)
+{
+
+    double winProb = calculateInitialWinningProbability(getCombinationHands(getKnownDeck(),opponentDeck));
+    std::cout<<winProb<<"\n";
+
+    float discreteValues[barDivider+1];
+    float realMatchValue = winProb*maxBetRaise;
+    unsigned int roundedValue;
+
+    for(int i=0; i<barDivider+1; i++)
+    {
+        discreteValues[i] = i*(static_cast<float>(maxBetRaise)/barDivider);
+        std::cout<<discreteValues[i]<<"\n";
+    }
+
+    //see where it lies on our array (which value is the closest, rounding to top value if possible
+
+    for(int i=0; i<barDivider+1; i++)
+    {
+        if(realMatchValue>discreteValues[i])
+        {
+            continue;
+        }
+        else if(realMatchValue==discreteValues[i])
+        {
+            roundedValue = realMatchValue;
+            break;
+        }
+        else
+        {
+            if(i==0)
+            {
+                roundedValue = std::ceil(realMatchValue);
+                break;
+            }
+            if((discreteValues[i]-realMatchValue)<realMatchValue-discreteValues[i-1])
+            {
+                roundedValue = std::ceil(discreteValues[i]);
+                break;
+            }
+            else
+            {
+                roundedValue = std::ceil(discreteValues[i-1]);
+                break;
+            }
+        }
+    }
+
+
+    if(roundedValue>=betRaiseForRound)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+
 
 }
 

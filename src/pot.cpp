@@ -91,3 +91,15 @@ Pot::Pot(unsigned int maxBetAmount)
 {
     this->maxBetRaise = maxBetAmount;
 }
+
+unsigned int Pot::getBetRaiseForRound()
+{
+    if(unmatchedBetState)
+    {
+        return (betRaisePile/2)+unmatchedBet;
+    }
+    else
+    {
+        return (betRaisePile/2);
+    }
+}

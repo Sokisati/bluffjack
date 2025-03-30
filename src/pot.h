@@ -25,6 +25,7 @@ public:
     unsigned int giveAllMoneyToPlayer();
     void printContent();
     Pot(unsigned int maxBetAmount);
+    unsigned int getBetRaiseForRound();
 
 };
 

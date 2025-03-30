@@ -46,6 +46,9 @@ public:
 
 class Bot : public Player
 {
+    //bar divider value shall be 2 if all we want is a simple ceil function
+    unsigned int barDivider = 2;
+    unsigned int maxBetRaise = 5;
 
     unsigned int getNumberOfUnknownCards(HandDeck opponentDeck);
     HandDeck getKnownCardHand(HandDeck opponentDeck);
@@ -57,6 +60,7 @@ class Bot : public Player
 
 public:
     Bot(std::string name,unsigned int deckMultiplier);
+    bool matchBetOrNot(unsigned int betRaiseForRound,HandDeck opponentDeck);
     double getExpectedValue(GameDeck knownDeck,HandDeck opponentDeck);
 
 };

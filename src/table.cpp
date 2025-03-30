@@ -25,13 +25,12 @@ void Table::debugEnv()
     takeBlindBets();
     dealInitialCards();
 
-    humanPlayer.printHand();
+    glados.raiseBet(1,pot);
+    humanPlayer.matchBetRaise(pot);
 
-    glados.printHand();
+    humanPlayer.raiseBet(2,pot);
 
-    glados.updateKnownDeck(humanPlayer.getHandDeck());
-
-    glados.printKnownDeck();
+    glados.matchBetOrNot(pot.getBetRaiseForRound(),humanPlayer.getHandDeck());
 
 }
 
