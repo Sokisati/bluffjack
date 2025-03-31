@@ -25,6 +25,7 @@ public:
     void openFirstCard();
     void removeCardAtIndex(unsigned int index);
     void openCardSequantially();
+
 };
 
 class GameDeck : public Deck
@@ -50,9 +51,6 @@ public:
     unsigned int getNumberOfAcesInHand();
     unsigned int getGameValue();
     HandDeck operator+(HandDeck handDeckToAdd);
-
-
-
 
 };
 

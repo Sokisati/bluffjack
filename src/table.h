@@ -7,6 +7,9 @@
 
 #include "pot.h"
 #include "player.h"
+#include "map"
+#include "iostream"
+#include <iomanip>
 
 class Table
 {

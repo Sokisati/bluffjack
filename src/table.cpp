@@ -22,15 +22,18 @@ this->maxBet = static_cast<float>(startingMoney)*maxBetRatio;
 
 void Table::debugEnv()
 {
-    takeBlindBets();
-    dealInitialCards();
 
-    glados.raiseBet(1,pot);
-    humanPlayer.matchBetRaise(pot);
+    humanPlayer.givePseudoCard(TEN);
+    humanPlayer.openCardSequantially();
+    glados.givePseudoCard(TEN);
+    glados.givePseudoCard(SEVEN);
 
-    humanPlayer.raiseBet(2,pot);
+    GameDeck knownDeck(1);
+    knownDeck.createDebugDeck();
 
-    glados.matchBetOrNot(pot.getBetRaiseForRound(),humanPlayer.getHandDeck());
+
+    std::cout<<glados.getAssumedWinProbRaw(humanPlayer.getOpenHandDeck(),knownDeck);
+
 
 }
 

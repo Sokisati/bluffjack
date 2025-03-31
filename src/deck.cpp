@@ -142,9 +142,8 @@ void GameDeck::createDebugDeck()
 {
     clearDeck();
     addPseudoCard(TWO);
-    addPseudoCard(SIX);
+    addPseudoCard(FIVE);
     addPseudoCard(NINE);
-    addPseudoCard(TEN);
 
 }
 
@@ -198,6 +197,12 @@ unsigned int HandDeck::getGameValue()
 {
     unsigned int numberOfAces = getNumberOfAcesInHand();
     unsigned int totalValue = getTotalValue();
+
+    //TODO: 5 SHALL BE EASILY CHANGABLE
+    if(getNumberOfCards()==5 && totalValue<=21)
+    {
+        return 21;
+    }
 
     if(totalValue>21)
     {

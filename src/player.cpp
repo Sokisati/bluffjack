@@ -6,6 +6,7 @@
 #include "iostream"
 #include "exceptions/pot_exceptions.h"
 #include "cmath"
+#include "exceptions/tree_exceptions.h"
 
 void Player::drawCard(Card cardToDraw)
 {
@@ -35,7 +36,7 @@ void Player::drawRandomCard(GameDeck &deckToBeDrawn)
     drawCard(deckToBeDrawn.getRandomCard());
 }
 
-unsigned int Player::getNumberOfCardsPossesed() const
+unsigned int Player::getNumberOfCardsPossesed()
 {
     return this->numberOfCardsPossesed;
 }
@@ -64,6 +65,19 @@ HandDeck Player::getHandDeck()
     return handDeck;
 }
 
+HandDeck Player::getOpenHandDeck()
+{
+    HandDeck tempDeck;
+
+    for(Card card : handDeck.getDeckVector())
+    {
+        if(card.getCardState()==up)
+        {
+            tempDeck.addCard(card);
+        }
+    }
+    return tempDeck;
+}
 
 void Player::printHand()
 {
@@ -182,7 +196,6 @@ Player::Player(std::string name, unsigned int deckMultiplier):knownDeck(deckMult
     this->name=name;
 }
 
-
 unsigned int Bot::calculateCombinations(int setSize, int selection) {
     if (selection > setSize) return 0;
     unsigned int result = 1;
@@ -279,6 +292,102 @@ double Bot::calculateAftermathWinningProbability(GameDeck knownDeck,HandDeck opp
     return aftermathWinProbablity;
 }
 
+std::map<int, double> Bot::computeDistribution(HandDeck currentHand,
+                                          GameDeck deck,
+                                          int drawsSoFar = 0,
+                                          double cumProb = 1.0)
+{
+    std::map<int, double> result;
+    unsigned int value = currentHand.getGameValue();
+
+    // Base Case 1: Bust
+    if (value > 21) {
+        result[0] = cumProb;
+        return result;
+    }
+
+    // Base Case 2: Reached maximum of 5 cards
+    if (drawsSoFar >= 5) {
+        result[value] = cumProb;
+        return result;
+    }
+
+    // IMPORTANT: If no cards remain, we must stop drawing
+    if (deck.getNumberOfCards() == 0) {
+        result[value] = cumProb;
+        return result;
+    }
+
+    // Get probability that opponent decides to draw from this state.
+    double pDraw = getDrawProbabilityHuman(value);
+
+    std::map<int, double> dist;  // Will accumulate the distribution from both branches.
+
+    // "Stop drawing" branch: even if pDraw < 1, the opponent might decide to stop.
+    double pNoDraw = (1.0 - pDraw);
+    if (pNoDraw > 0.0) {
+        dist[value] += cumProb * pNoDraw;
+    }
+
+    // "Draw" branch: if the player decides to draw.
+    if (pDraw > 0.0) {
+        double totalCards = static_cast<double>(deck.getNumberOfCards());
+        // For each card available in deck...
+        for (unsigned int i = 0; i < deck.getNumberOfCards(); i++) {
+            Card nextCard = deck.returnCardAtIndex(i);
+
+            // Create a copy of the deck and remove the chosen card.
+            GameDeck newDeck = deck;
+            newDeck.removeCardAtIndex(i);
+
+            // Create a copy of the current hand and add the new card.
+            HandDeck newHand = currentHand;
+            newHand.addCard(nextCard);
+
+            // Update cumulative probability:
+            // Multiply by pDraw (chance to draw at this state) and by the chance to pick this card.
+            double newCumProb = cumProb * pDraw * (1.0 / totalCards);
+
+            // Recurse with an extra card drawn.
+            std::map<int, double> subDist = computeDistribution(newHand, newDeck, drawsSoFar + 1, newCumProb);
+            for (auto &kv : subDist) {
+                dist[kv.first] += kv.second;
+            }
+        }
+    }
+
+    return dist;
+}
+
+std::map<int, double> Bot::getOpponentProbabilities(HandDeck openHandDeck, GameDeck knownDeck)
+{
+    int drawsSoFar = openHandDeck.getNumberOfCards();
+    std::map<int, double> distribution = computeDistribution(openHandDeck, knownDeck, drawsSoFar, 1.0);
+    return distribution;
+}
+
+double Bot::getAssumedWinProbRaw(HandDeck openHandDeck, GameDeck knownDeck)
+{
+    double assumedWinProb = 0;
+
+    unsigned int selfGameValue = getHandDeck().getGameValue();
+    std::map<int, double> dist = getOpponentProbabilities(openHandDeck, knownDeck);
+    for (auto &kv : dist)
+    {
+        std::cout<<kv.first<<"    "<<kv.second<<"\n";
+        if(kv.first<selfGameValue)
+        {
+            assumedWinProb+=kv.second;
+        }
+        else if(kv.first==selfGameValue)
+        {
+            assumedWinProb+=((kv.second)/2);
+        }
+    }
+
+    return assumedWinProb;
+}
+
 Bot::Bot(std::string name, unsigned int deckMultiplier)
     : Player(name, deckMultiplier)
 {
@@ -288,6 +397,7 @@ Bot::Bot(std::string name, unsigned int deckMultiplier)
 bool Bot::matchBetOrNot(unsigned int betRaiseForRound,HandDeck opponentDeck)
 {
 
+    //this is accounting for just the present situation, TODO: calculate expected win probability
     double winProb = calculateInitialWinningProbability(getCombinationHands(getKnownDeck(),opponentDeck));
     std::cout<<winProb<<"\n";
 
@@ -391,6 +501,32 @@ std::vector<std::vector<unsigned int>> Bot::generateCombinations(unsigned int se
     }
 
     return result;
+}
+
+double Bot::getDrawProbabilityHuman(unsigned int handValue)
+{
+    //TODO: CONSTRUCTOR
+    if(handValue<=14)
+    {
+    return 1;
+    }
+    if(handValue>18)
+    {
+        return 0;
+    }
+    switch(handValue)
+    {
+        case 15:
+            return 0.95;
+        case 16:
+            return 0.80;
+        case 17:
+            return 0.5;
+        case 18:
+            return 0.05;
+        default:
+            throw ProbabilityMapValueNotPresent();
+    }
 }
 
 unsigned int Bot::getNumberOfUnknownCards(HandDeck opponentDeck)

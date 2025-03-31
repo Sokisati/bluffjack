@@ -7,6 +7,8 @@
 #include "deck.h"
 #include "pot.h"
 #include "string"
+#include "map"
+#include <iomanip>
 
 class Player
 {
@@ -21,11 +23,12 @@ public:
     void drawImaginaryCard(Card imaginaryCard);
     void drawCardFromDeck(Card cardToDraw,GameDeck &deckToBeDrawn);
     void drawRandomCard(GameDeck &deckToBeDrawn);
-    unsigned int getNumberOfCardsPossesed() const;
+    unsigned int getNumberOfCardsPossesed();
     void givePseudoCard(CardType cardType);
     void openAllCards();
     void openFirstCard();
     HandDeck getHandDeck();
+    HandDeck getOpenHandDeck();
     void printHand();
     void openCardSequantially();
     void matchBetRaise(Pot &pot);
@@ -50,6 +53,7 @@ class Bot : public Player
     unsigned int barDivider = 2;
     unsigned int maxBetRaise = 5;
 
+    double getDrawProbabilityHuman(unsigned int handValue);
     unsigned int getNumberOfUnknownCards(HandDeck opponentDeck);
     HandDeck getKnownCardHand(HandDeck opponentDeck);
     std::vector<HandDeck> getCombinationHands(GameDeck knownDeck,HandDeck opponentDeck);
@@ -57,8 +61,15 @@ class Bot : public Player
     unsigned int calculateCombinations(int setSize, int selection);
     double calculateInitialWinningProbability(std::vector<HandDeck> handDeckVector);
     double calculateAftermathWinningProbability(GameDeck knownDeck,HandDeck opponentDeck);
+    std::map<int, double> computeDistribution(HandDeck currentHand,
+                                          GameDeck deck,
+                                          int drawsSoFar,
+                                          double cumProb);
+    std::map<int, double> getOpponentProbabilities(HandDeck openHandDeck,
+                                               GameDeck knownDeck);
 
 public:
+    double getAssumedWinProbRaw(HandDeck openHandDeck,GameDeck knownDeck);
     Bot(std::string name,unsigned int deckMultiplier);
     bool matchBetOrNot(unsigned int betRaiseForRound,HandDeck opponentDeck);
     double getExpectedValue(GameDeck knownDeck,HandDeck opponentDeck);
