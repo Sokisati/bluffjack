@@ -24,6 +24,7 @@ void Table::debugEnv()
 {
 
     humanPlayer.givePseudoCard(TEN);
+    humanPlayer.givePseudoCard(TWO);
     humanPlayer.openCardSequantially();
     glados.givePseudoCard(TEN);
     glados.givePseudoCard(SEVEN);
@@ -32,7 +33,7 @@ void Table::debugEnv()
     knownDeck.createDebugDeck();
 
 
-    std::cout<<glados.getAssumedWinProbRaw(humanPlayer.getOpenHandDeck(),knownDeck);
+    std::cout<<glados.getComplexWinProb(humanPlayer.getHandDeck(),knownDeck);
 
 
 }

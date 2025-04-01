@@ -51,6 +51,7 @@ public:
     unsigned int getNumberOfAcesInHand();
     unsigned int getGameValue();
     HandDeck operator+(HandDeck handDeckToAdd);
+    HandDeck getOpenHand();
 
 };
 

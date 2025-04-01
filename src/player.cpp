@@ -196,6 +196,31 @@ Player::Player(std::string name, unsigned int deckMultiplier):knownDeck(deckMult
     this->name=name;
 }
 
+double BotParameterPack::getDrawProbabilityHuman(unsigned int handValue)
+{
+    if(handValue<=14)
+    {
+        return 1;
+    }
+    if(handValue>18)
+    {
+        return 0;
+    }
+    switch(handValue)
+    {
+        case 15:
+            return 0.95;
+        case 16:
+            return 0.80;
+        case 17:
+            return 0.5;
+        case 18:
+            return 0.05;
+        default:
+            throw ProbabilityMapValueNotPresent();
+    }
+}
+
 unsigned int Bot::calculateCombinations(int setSize, int selection) {
     if (selection > setSize) return 0;
     unsigned int result = 1;
@@ -319,7 +344,7 @@ std::map<int, double> Bot::computeDistribution(HandDeck currentHand,
     }
 
     // Get probability that opponent decides to draw from this state.
-    double pDraw = getDrawProbabilityHuman(value);
+    double pDraw = botParamPack.getDrawProbabilityHuman(value);
 
     std::map<int, double> dist;  // Will accumulate the distribution from both branches.
 
@@ -366,9 +391,21 @@ std::map<int, double> Bot::getOpponentProbabilities(HandDeck openHandDeck, GameD
     return distribution;
 }
 
-double Bot::getAssumedWinProbRaw(HandDeck openHandDeck, GameDeck knownDeck)
+double Bot::getComplexWinProb(HandDeck opponentHand, GameDeck knownDeck)
+{
+    double assumedWinProb = getAssumedWinProbRaw(opponentHand,knownDeck);
+    std::vector<HandDeck> combinationHands = getCombinationHands(knownDeck,opponentHand);
+    double initialWinProbability = calculateInitialWinningProbability(combinationHands);
+
+    return assumedWinProb*botParamPack.assumalWinProbWeight + initialWinProbability*(1-botParamPack.assumalWinProbWeight);
+
+}
+
+double Bot::getAssumedWinProbRaw(HandDeck opponentHand, GameDeck knownDeck)
 {
     double assumedWinProb = 0;
+
+    HandDeck openHandDeck = opponentHand.getOpenHand();
 
     unsigned int selfGameValue = getHandDeck().getGameValue();
     std::map<int, double> dist = getOpponentProbabilities(openHandDeck, knownDeck);
@@ -401,19 +438,19 @@ bool Bot::matchBetOrNot(unsigned int betRaiseForRound,HandDeck opponentDeck)
     double winProb = calculateInitialWinningProbability(getCombinationHands(getKnownDeck(),opponentDeck));
     std::cout<<winProb<<"\n";
 
-    float discreteValues[barDivider+1];
-    float realMatchValue = winProb*maxBetRaise;
+    float discreteValues[botParamPack.barDivider+1];
+    float realMatchValue = winProb*botParamPack.maxBetRaise;
     unsigned int roundedValue;
 
-    for(int i=0; i<barDivider+1; i++)
+    for(int i=0; i<botParamPack.barDivider+1; i++)
     {
-        discreteValues[i] = i*(static_cast<float>(maxBetRaise)/barDivider);
+        discreteValues[i] = i*(static_cast<float>(botParamPack.maxBetRaise)/botParamPack.barDivider);
         std::cout<<discreteValues[i]<<"\n";
     }
 
     //see where it lies on our array (which value is the closest, rounding to top value if possible
 
-    for(int i=0; i<barDivider+1; i++)
+    for(int i=0; i<botParamPack.barDivider+1; i++)
     {
         if(realMatchValue>discreteValues[i])
         {
@@ -501,32 +538,6 @@ std::vector<std::vector<unsigned int>> Bot::generateCombinations(unsigned int se
     }
 
     return result;
-}
-
-double Bot::getDrawProbabilityHuman(unsigned int handValue)
-{
-    //TODO: CONSTRUCTOR
-    if(handValue<=14)
-    {
-    return 1;
-    }
-    if(handValue>18)
-    {
-        return 0;
-    }
-    switch(handValue)
-    {
-        case 15:
-            return 0.95;
-        case 16:
-            return 0.80;
-        case 17:
-            return 0.5;
-        case 18:
-            return 0.05;
-        default:
-            throw ProbabilityMapValueNotPresent();
-    }
 }
 
 unsigned int Bot::getNumberOfUnknownCards(HandDeck opponentDeck)

@@ -47,13 +47,19 @@ public:
     Player(std::string name,unsigned int deckMultiplier);
 };
 
-class Bot : public Player
+struct BotParameterPack
 {
     //bar divider value shall be 2 if all we want is a simple ceil function
-    unsigned int barDivider = 2;
-    unsigned int maxBetRaise = 5;
-
+    const unsigned int barDivider = 2;
+    const unsigned int maxBetRaise = 5;
     double getDrawProbabilityHuman(unsigned int handValue);
+    const double assumalWinProbWeight = 0.3;
+};
+
+class Bot : public Player
+{
+
+    BotParameterPack botParamPack;
     unsigned int getNumberOfUnknownCards(HandDeck opponentDeck);
     HandDeck getKnownCardHand(HandDeck opponentDeck);
     std::vector<HandDeck> getCombinationHands(GameDeck knownDeck,HandDeck opponentDeck);
@@ -69,7 +75,8 @@ class Bot : public Player
                                                GameDeck knownDeck);
 
 public:
-    double getAssumedWinProbRaw(HandDeck openHandDeck,GameDeck knownDeck);
+    double getComplexWinProb(HandDeck opponentHand,GameDeck knownDeck);
+    double getAssumedWinProbRaw(HandDeck opponentHand,GameDeck knownDeck);
     Bot(std::string name,unsigned int deckMultiplier);
     bool matchBetOrNot(unsigned int betRaiseForRound,HandDeck opponentDeck);
     double getExpectedValue(GameDeck knownDeck,HandDeck opponentDeck);

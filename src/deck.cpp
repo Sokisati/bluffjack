@@ -239,6 +239,19 @@ HandDeck HandDeck::operator+(HandDeck handDeckToAdd)
     return sumDeck;
 }
 
+HandDeck HandDeck::getOpenHand()
+{
+    HandDeck tempDeck;
+    for(Card &card : getDeckVector())
+    {
+        if(card.getCardState()==up)
+        {
+          tempDeck.addCard(card);
+        }
+    }
+    return tempDeck;
+}
+
 void Deck::openCardSequantially()
 {
     //TODO: THIS IS UGLY
