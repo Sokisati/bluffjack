@@ -7,9 +7,6 @@
 
 #include "pot.h"
 #include "player.h"
-#include "map"
-#include "iostream"
-#include <iomanip>
 
 class Table
 {
@@ -35,6 +32,13 @@ public:
     void gladosCardDrawCycle();
     void startGame();
     unsigned int getMaxBetRaiseAllowed();
+    void startRound();
+    std::string humanActionLoop();
+    void printLegalMovesForHuman();
+    bool questionLegality(std::string string);
+    void takeInputAction(std::string string);
+    void takeCounterAction(std::string string);
+    void compareFlagsAndTakeAction();
 };
 
 

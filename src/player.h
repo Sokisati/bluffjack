@@ -10,6 +10,8 @@
 #include "map"
 #include <iomanip>
 
+#include "iostream"
+enum Flag{red,yellow,green};
 class Player
 {
     unsigned int money = 0;
@@ -18,6 +20,7 @@ class Player
     std::string name;
     GameDeck knownDeck;
     void drawCard(Card cardToDraw);
+    Flag flag = red;
 public:
 
     void drawImaginaryCard(Card imaginaryCard);
@@ -42,7 +45,11 @@ public:
     void printKnownDeck();
     GameDeck getKnownDeck();
     void clearHand();
-
+    void raiseGreenFlag();
+    void raiseRedFlag();
+    void raiseYellowFlag();
+    Flag getFlagState();
+    std::string getPlayerName();
     unsigned int getMoney();
     Player(std::string name,unsigned int deckMultiplier);
 };
@@ -54,6 +61,7 @@ struct BotParameterPack
     const unsigned int maxBetRaise = 5;
     double getDrawProbabilityHuman(unsigned int handValue);
     const double assumalWinProbWeight = 0.3;
+    const double bluffMultiplier = 0.5;
 };
 
 class Bot : public Player
@@ -80,6 +88,9 @@ public:
     Bot(std::string name,unsigned int deckMultiplier);
     bool matchBetOrNot(unsigned int betRaiseForRound,HandDeck opponentDeck);
     double getExpectedValue(GameDeck knownDeck,HandDeck opponentDeck);
+    unsigned int betRaiseOrNot(HandDeck opponentDeck, GameDeck knownDeck,unsigned int maxBetRaise);
+    bool getRandomBool(double probability);
+    double getRandomDouble();
 
 };
 

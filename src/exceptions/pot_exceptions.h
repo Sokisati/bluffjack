@@ -35,7 +35,9 @@ struct BetRaiseAttemptWhileUnmatched: public std::exception {
 struct BlindBetExceedWallet: public std::exception {
     const char* what();
 };
-
+struct BetMatchByPlayerWhoRaisedIt: public std::exception {
+    const char* what();
+};
 
 
 #endif //POT_EXCEPTIONS_H

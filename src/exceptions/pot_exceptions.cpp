@@ -47,3 +47,9 @@ const char * BlindBetExceedWallet::what()
 {
     return "You don't have the sufficient money to match blind bet\n";
 }
+
+const char * BetMatchByPlayerWhoRaisedIt::what()
+{
+    return "A player has tried matching a bet that he raised\n";
+}
+

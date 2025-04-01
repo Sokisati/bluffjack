@@ -22,8 +22,10 @@ void Pot::takeBlindBet(unsigned int blindBetAmount)
     this->blindBetPile+=blindBetAmount;
 }
 
-void Pot::takeBetRaise(unsigned int amount)
+void Pot::takeBetRaise(unsigned int amount,std::string playerName)
 {
+
+
     if(unmatchedBetState)
     {
     throw BetRaiseAttemptWhileUnmatched();
@@ -33,21 +35,28 @@ void Pot::takeBetRaise(unsigned int amount)
         throw ExceedMaxBetRaise();
     }
 
+    lastBetRaiseName = playerName;
     unmatchedBetState=true;
     betRaisePile+=amount;
     unmatchedBet=amount;
 }
 
-void Pot::takeBetRaiseMatch(unsigned int amount)
+void Pot::takeBetRaiseMatch(unsigned int amount,std::string playerName)
 {
     if(amount!=unmatchedBet)
     {
         throw DifferentBetMatch();
     }
-    if(!unmatchedBetState) {
+    if(!unmatchedBetState)
+    {
         throw BetMatchAttemptInvalid();
     }
+    if(lastBetRaiseName==playerName)
+    {
+        throw BetMatchByPlayerWhoRaisedIt();
+    }
 
+    lastBetRaiseName="";
     unmatchedBetState=false;
     betRaisePile+=amount;
     unmatchedBet=0;
@@ -84,7 +93,7 @@ void Pot::printContent()
     std::cout<<"Blind bet pile: "<<blindBetPile<<"\n";
     std::cout<<"Bet raise pile: "<<betRaisePile<<"\n";
     std::cout<<"Unmatched bet amount: "<<unmatchedBet<<"\n";
-    std::cout<<"Unmatched bet state: "<<unmatchedBetState<<"\n";
+    std::cout<<"Last bet raise by player: "<<lastBetRaiseName<<"\n";
 }
 
 Pot::Pot(unsigned int maxBetAmount)
@@ -102,4 +111,9 @@ unsigned int Pot::getBetRaiseForRound()
     {
         return (betRaisePile/2);
     }
+}
+
+std::string Pot::getLastBetRaisePlayerName()
+{
+    return lastBetRaiseName;
 }

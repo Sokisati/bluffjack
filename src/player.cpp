@@ -3,7 +3,6 @@
 //
 
 #include "player.h"
-#include "iostream"
 #include "exceptions/pot_exceptions.h"
 #include "cmath"
 #include "exceptions/tree_exceptions.h"
@@ -102,13 +101,15 @@ void Player::matchBetRaise(Pot &pot)
     {
         throw InsufficientFundsToMatch();
     }
-    pot.takeBetRaiseMatch(betToMatch);
+    std::cout<<"Player: "<<name<<" matches bet raise"<<"\n";
+    pot.takeBetRaiseMatch(betToMatch,name);
     money-=betToMatch;
 
 }
 
 void Player::raiseBet(unsigned int amount, Pot &pot)
 {
+
     unsigned int maxBetRaiseAllowedByPot = pot.getMaxBetRaiseAllowed();
     if(amount>maxBetRaiseAllowedByPot)
     {
@@ -122,9 +123,9 @@ void Player::raiseBet(unsigned int amount, Pot &pot)
     {
      throw BetRaiseAttemptWhileUnmatched();
     }
-
+    std::cout<<"Player: "<<name<<" raises bet by:"<<amount<<"\n";
     money-=amount;
-    pot.takeBetRaise(amount);
+    pot.takeBetRaise(amount,name);
 
 }
 
@@ -184,6 +185,31 @@ GameDeck Player::getKnownDeck()
 void Player::clearHand()
 {
     handDeck.clearDeck();
+}
+
+void Player::raiseGreenFlag()
+{
+    this->flag = green;
+}
+
+void Player::raiseRedFlag()
+{
+    this->flag = red;
+}
+
+void Player::raiseYellowFlag()
+{
+    flag=yellow;
+}
+
+Flag Player::getFlagState()
+{
+    return flag;
+}
+
+std::string Player::getPlayerName()
+{
+    return name;
 }
 
 unsigned int Player::getMoney()
@@ -411,7 +437,6 @@ double Bot::getAssumedWinProbRaw(HandDeck opponentHand, GameDeck knownDeck)
     std::map<int, double> dist = getOpponentProbabilities(openHandDeck, knownDeck);
     for (auto &kv : dist)
     {
-        std::cout<<kv.first<<"    "<<kv.second<<"\n";
         if(kv.first<selfGameValue)
         {
             assumedWinProb+=kv.second;
@@ -434,18 +459,15 @@ Bot::Bot(std::string name, unsigned int deckMultiplier)
 bool Bot::matchBetOrNot(unsigned int betRaiseForRound,HandDeck opponentDeck)
 {
 
-    //this is accounting for just the present situation, TODO: calculate expected win probability
-    double winProb = calculateInitialWinningProbability(getCombinationHands(getKnownDeck(),opponentDeck));
-    std::cout<<winProb<<"\n";
+    double complexWinProb = getComplexWinProb(opponentDeck,getKnownDeck());
 
     float discreteValues[botParamPack.barDivider+1];
-    float realMatchValue = winProb*botParamPack.maxBetRaise;
+    float realMatchValue = complexWinProb*botParamPack.maxBetRaise;
     unsigned int roundedValue;
 
     for(int i=0; i<botParamPack.barDivider+1; i++)
     {
         discreteValues[i] = i*(static_cast<float>(botParamPack.maxBetRaise)/botParamPack.barDivider);
-        std::cout<<discreteValues[i]<<"\n";
     }
 
     //see where it lies on our array (which value is the closest, rounding to top value if possible
@@ -512,6 +534,57 @@ double Bot::getExpectedValue(GameDeck knownDeck,HandDeck opponentDeck)
 
     std::cout<<expectedValue<<"\n";
     return expectedValue;
+}
+
+unsigned int Bot::betRaiseOrNot(HandDeck opponentDeck, GameDeck knownDeck,unsigned int maxBetRaise)
+{
+    unsigned int betRaise;
+    double complexWinProb = getComplexWinProb(opponentDeck,knownDeck);
+    if(!getRandomBool(complexWinProb))
+    {
+        return 0;
+    }
+
+    if(complexWinProb<0.5)
+    {
+
+        //roll the dice again, this is no joke
+        if(!getRandomBool(complexWinProb*botParamPack.bluffMultiplier))
+        {
+            return 0;
+        }
+
+    //ooh, spicy. we are bluffing!
+
+        double randomDouble = getRandomDouble();
+        betRaise = ((std::ceil(randomDouble))*maxBetRaise);
+    }
+    else
+    {
+        betRaise = ((std::ceil(complexWinProb))*maxBetRaise);
+    }
+
+    if(betRaise>getMoney())
+    {
+        return getMoney();
+    }
+}
+double Bot::getRandomDouble() {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(0.5, 1.0);
+
+    return dis(gen);
+}
+
+bool Bot::getRandomBool(double probability)
+{
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    std::uniform_real_distribution<> dis(0.0, 1.0);
+
+    return dis(gen) < probability;
+
 }
 
 std::vector<std::vector<unsigned int>> Bot::generateCombinations(unsigned int setSize, unsigned int selection) {

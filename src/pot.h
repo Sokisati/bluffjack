@@ -4,7 +4,7 @@
 
 #ifndef POT_H
 #define POT_H
-
+#include "string"
 class Pot
 {
 
@@ -13,19 +13,21 @@ class Pot
     unsigned int unmatchedBet = 0;
     unsigned int maxBetRaise = 0;
     bool unmatchedBetState = false;
+    std::string lastBetRaiseName;
 
     unsigned int getAllMoney();
 public:
     bool getUnmatchedBetState();
     unsigned int getUnmatchedBetAmount();
     void takeBlindBet(unsigned int blindBetAmount);
-    void takeBetRaise(unsigned int amount);
-    void takeBetRaiseMatch(unsigned int amount);
+    void takeBetRaise(unsigned int amount,std::string playerName);
+    void takeBetRaiseMatch(unsigned int amount,std::string playerName);
     unsigned int getMaxBetRaiseAllowed();
     unsigned int giveAllMoneyToPlayer();
     void printContent();
     Pot(unsigned int maxBetAmount);
     unsigned int getBetRaiseForRound();
+    std::string getLastBetRaisePlayerName();
 
 };
 
