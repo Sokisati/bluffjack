@@ -7,6 +7,8 @@
 
 #include "pot.h"
 #include "player.h"
+#include "exceptions/table_exceptions.h"
+
 
 class Table
 {
@@ -18,7 +20,8 @@ class Table
     unsigned int maxBet;
     unsigned int startingMoney;
     unsigned int initialCardSize = 2;
-    unsigned int openCardSize = 1;
+    unsigned int initialOpenCardSize = 1;
+    bool endOfRound = false;
 
 public:
     Table(unsigned int deckMultiplier, unsigned int startingMoney,
@@ -36,9 +39,14 @@ public:
     std::string humanActionLoop();
     void printLegalMovesForHuman();
     bool questionLegality(std::string string);
-    void takeInputAction(std::string string);
-    void takeCounterAction(std::string string);
+    void takeInputAction(const std::string &string);
+    void takeCounterAction(const std::string &string);
     void compareFlagsAndTakeAction();
+    void endRound();
+    std::string determineWinner();
+    void winAction(std::string winnerName);
+    void printPlayersContent();
+    void commenceAGame();
 };
 
 

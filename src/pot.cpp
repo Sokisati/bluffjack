@@ -88,6 +88,18 @@ unsigned int Pot::giveAllMoneyToPlayer()
     return totalMoney;
 }
 
+unsigned int Pot::giveHalfPortionToPlayer()
+{
+    unsigned int totalMoney = getAllMoney();
+    if(totalMoney%2!=0)
+    {
+        throw PotSumNotDividableByTwo();
+    }
+    blindBetPile/=2;
+    betRaisePile/=2;
+    return totalMoney/2;
+}
+
 void Pot::printContent()
 {
     std::cout<<"Blind bet pile: "<<blindBetPile<<"\n";

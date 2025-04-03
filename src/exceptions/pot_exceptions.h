@@ -38,6 +38,9 @@ struct BlindBetExceedWallet: public std::exception {
 struct BetMatchByPlayerWhoRaisedIt: public std::exception {
     const char* what();
 };
+struct PotSumNotDividableByTwo: public std::exception {
+    const char* what();
+};
 
 
 #endif //POT_EXCEPTIONS_H

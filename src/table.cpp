@@ -22,7 +22,7 @@ this->maxBet = static_cast<float>(startingMoney)*maxBetRatio;
 
 void Table::debugEnv()
 {
-    startRound();
+    commenceAGame();
 }
 
 unsigned int Table::getBlindBet()
@@ -42,7 +42,7 @@ void Table::dealInitialCards()
         humanPlayer.drawRandomCard(gameDeck);
         glados.drawRandomCard(gameDeck);
     }
-    for(int i=0; i<openCardSize; i++)
+    for(int i=0; i<initialOpenCardSize; i++)
     {
         humanPlayer.openCardSequantially();
         glados.openCardSequantially();
@@ -91,7 +91,7 @@ unsigned int Table::getMaxBetRaiseAllowed()
 
 void Table::startRound()
 {
-    std::string inputString;
+    endOfRound = false;
 
     takeBlindBets();
     dealInitialCards();
@@ -101,8 +101,7 @@ void Table::startRound()
     humanPlayer.raiseYellowFlag();
     glados.raiseYellowFlag();
 
-    inputString = humanActionLoop();
-    takeCounterAction(inputString);
+    humanPlayer.printHand();
 
 }
 
@@ -128,23 +127,27 @@ std::string Table::humanActionLoop()
 
 void Table::printLegalMovesForHuman()
 {
+
     unsigned int maxBetRaiseAllowed = getMaxBetRaiseAllowed();
     unsigned int handSize = humanPlayer.getHandDeck().getNumberOfCards();
     bool greenFlag = (humanPlayer.getFlagState()==green);
 
-
     if(maxBetRaiseAllowed>0 && !pot.getUnmatchedBetState())
     {
         std::cout<<"Max. bet raise allowed is: "<<maxBetRaiseAllowed<<". ";
+    }
+    if(pot.getUnmatchedBetState())
+    {
+        std::cout<<"You can match bet raise"<<"\n";
     }
     //TODO: 5 shall be easily changable
     if(handSize<5)
     {
         std::cout<<"You can draw a card. ";
     }
-    if(!greenFlag)
+    if(!greenFlag&&!pot.getUnmatchedBetState())
     {
-        std::cout<<"You can raise green flag. ";
+        std::cout<<"You can stand. ";
     }
     std::cout<<"You can fold.\n";
 
@@ -165,7 +168,7 @@ bool Table::questionLegality(std::string string)
     {
         return ((!pot.getUnmatchedBetState())&&(maxBetRaiseAllowed>0));
     }
-    else if(string=="flag")
+    else if(string=="stand")
     {
         return (humanPlayer.getFlagState()!=green);
     }
@@ -184,7 +187,7 @@ bool Table::questionLegality(std::string string)
     }
 }
 
-void Table::takeInputAction(std::string string)
+void Table::takeInputAction(const std::string &string)
 {
      int inputNumber;
      if(string=="draw")
@@ -212,7 +215,7 @@ void Table::takeInputAction(std::string string)
              }
          }
      }
-     else if(string=="flag")
+     else if(string=="stand")
      {
          humanPlayer.raiseGreenFlag();
      }
@@ -226,7 +229,7 @@ void Table::takeInputAction(std::string string)
     }
 }
 
-void Table::takeCounterAction(std::string string)
+void Table::takeCounterAction(const std::string &string)
 {
 
     if(string=="raise")
@@ -244,7 +247,7 @@ void Table::takeCounterAction(std::string string)
     {
         return;
     }
-    else if(string=="flag"||string=="draw")
+    else if(string=="stand"||string=="draw")
     {
         unsigned int betRaiseByGlados = glados.betRaiseOrNot(humanPlayer.getHandDeck(),glados.getKnownDeck(),maxBet);
         if(betRaiseByGlados>0)
@@ -261,6 +264,98 @@ void Table::takeCounterAction(std::string string)
 
 void Table::compareFlagsAndTakeAction()
 {
+    Flag flag1 = glados.getFlagState();
+    Flag flag2 = humanPlayer.getFlagState();
 
+
+    if(flag1==red && flag2==red)
+    {
+        throw TwoRedFlags();
+    }
+    else if(flag1==green && flag2==green)
+    {
+        std::string winner = determineWinner();
+        winAction(winner);
+        endRound();
+    }
+    else if(flag1==red)
+    {
+        winAction("human");
+        endRound();
+    }
+    else if(flag2==red)
+    {
+        winAction("glados");
+        endRound();
+    }
+}
+
+void Table::endRound()
+{
+    this->endOfRound = true;
+    glados.updateKnownDeckRoundEnd(humanPlayer.getHandDeck(),initialOpenCardSize);
+    glados.clearHand();
+    humanPlayer.clearHand();
+}
+
+std::string Table::determineWinner()
+{
+    glados.openAllCards();
+    humanPlayer.openAllCards();
+
+    if(glados.getHandDeck().getGameValue()>humanPlayer.getHandDeck().getGameValue())
+    {
+     return "glados";
+    }
+    else if(glados.getHandDeck().getGameValue()<humanPlayer.getHandDeck().getGameValue())
+    {
+      return "human";
+    }
+    else
+    {
+        return "tie";
+    }
+
+}
+
+void Table::winAction(std::string winnerName)
+{
+    if(winnerName=="glados")
+    {
+        glados.takeAllTheMoneyFromPot(pot);
+    }
+    else if(winnerName=="human")
+    {
+        humanPlayer.takeAllTheMoneyFromPot(pot);
+    }
+    else if(winnerName=="tie")
+    {
+        glados.takeHalfPortionMoneyFromPot(pot);
+        humanPlayer.takeAllTheMoneyFromPot(pot);
+    }
+    else
+    {
+        throw InvalidWinnerName();
+    }
+}
+
+void Table::printPlayersContent()
+{
+    glados.printInfo();
+    humanPlayer.printInfo();
+}
+
+void Table::commenceAGame()
+{
+    std::string humanActionString;
+    startRound();
+    while(!endOfRound)
+    {
+       humanActionString = humanActionLoop();
+       takeInputAction(humanActionString);
+        takeCounterAction(humanActionString);
+        compareFlagsAndTakeAction();
+    }
+    printPlayersContent();
 }
 

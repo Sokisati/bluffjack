@@ -25,7 +25,7 @@ public:
     void openFirstCard();
     void removeCardAtIndex(unsigned int index);
     void openCardSequantially();
-
+    void openAllCards();
 };
 
 class GameDeck : public Deck

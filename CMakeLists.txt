@@ -14,7 +14,9 @@ set(MAIN_SRC "src/main.cpp"
         src/exceptions/card_exceptions.cpp
         src/exceptions/card_exceptions.h
         src/exceptions/tree_exceptions.cpp
-        src/exceptions/tree_exceptions.h)
+        src/exceptions/tree_exceptions.h
+        src/exceptions/table_exceptions.cpp
+        src/exceptions/table_exceptions.h)
 
 list(REMOVE_ITEM SOURCES "${MAIN_SRC}")
 

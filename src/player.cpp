@@ -48,10 +48,7 @@ void Player::givePseudoCard(CardType cardType)
 
 void Player::openAllCards()
 {
-    for(Card card : handDeck.getDeckVector())
-    {
-        card.openCard();
-    }
+    handDeck.openAllCards();
 }
 
 void Player::openFirstCard()
@@ -148,7 +145,6 @@ void Player::takeAllTheMoneyFromPot(Pot &pot)
 void Player::printFinancialContent()
 {
     std::cout<<name<<" has: "<<money<<"\n\n";
-
 }
 
 void Player::giveMoney(unsigned int amount)
@@ -164,6 +160,18 @@ void Player::updateKnownDeck(HandDeck opponentHand)
     {
     knownDeck.removeCard(card);
     }
+    }
+}
+
+void Player::updateKnownDeckRoundEnd(HandDeck opponentHand, unsigned int initialOpenCardSize)
+{
+    std::vector<Card> tempVector = opponentHand.getDeckVector();
+    for(unsigned int i=initialOpenCardSize; i<tempVector.size(); i++)
+    {
+        if(tempVector[i].getCardState()==up)
+        {
+            knownDeck.removeCard(tempVector[i]);
+        }
     }
 }
 
@@ -220,6 +228,36 @@ unsigned int Player::getMoney()
 Player::Player(std::string name, unsigned int deckMultiplier):knownDeck(deckMultiplier)
 {
     this->name=name;
+}
+
+void Player::openAllCardsInHand()
+{
+    handDeck.openAllCards();
+}
+
+void Player::takeHalfPortionMoneyFromPot(Pot &pot)
+{
+    unsigned int totalMoneyToTake = pot.giveHalfPortionToPlayer();
+    money+=totalMoneyToTake;
+}
+
+void Player::printInfo()
+{
+    printFinancialContent();
+    printHand();
+    std::cout<<"Flag state: ";
+    if(flag==red)
+    {
+        std::cout<<"red\n\n";
+    }
+    if(flag==yellow)
+    {
+        std::cout<<"yellow\n\n";
+    }
+    if(flag==green)
+    {
+        std::cout<<"green\n\n";
+    }
 }
 
 double BotParameterPack::getDrawProbabilityHuman(unsigned int handValue)
@@ -547,27 +585,25 @@ unsigned int Bot::betRaiseOrNot(HandDeck opponentDeck, GameDeck knownDeck,unsign
 
     if(complexWinProb<0.5)
     {
-
         //roll the dice again, this is no joke
         if(!getRandomBool(complexWinProb*botParamPack.bluffMultiplier))
         {
             return 0;
         }
-
     //ooh, spicy. we are bluffing!
-
         double randomDouble = getRandomDouble();
-        betRaise = ((std::ceil(randomDouble))*maxBetRaise);
+        betRaise = static_cast<unsigned int>(std::ceil(randomDouble) * maxBetRaise);
     }
     else
     {
-        betRaise = ((std::ceil(complexWinProb))*maxBetRaise);
+        betRaise = static_cast<unsigned int>(std::ceil(complexWinProb) * maxBetRaise);
     }
 
     if(betRaise>getMoney())
     {
-        return getMoney();
+        betRaise = getMoney();
     }
+    return betRaise;
 }
 double Bot::getRandomDouble() {
     static std::random_device rd;

@@ -41,6 +41,7 @@ public:
     void printFinancialContent();
     void giveMoney(unsigned int amount);
     void updateKnownDeck(HandDeck opponentHand);
+    void updateKnownDeckRoundEnd(HandDeck opponentHand, unsigned int initialOpenCardSize);
     void equaliseKnownDeck(GameDeck gameDeck);
     void printKnownDeck();
     GameDeck getKnownDeck();
@@ -52,6 +53,10 @@ public:
     std::string getPlayerName();
     unsigned int getMoney();
     Player(std::string name,unsigned int deckMultiplier);
+    void openAllCardsInHand();
+    void takeHalfPortionMoneyFromPot(Pot &pot);
+    void printInfo();
+
 };
 
 struct BotParameterPack

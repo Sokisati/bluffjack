@@ -53,3 +53,8 @@ const char * BetMatchByPlayerWhoRaisedIt::what()
     return "A player has tried matching a bet that he raised\n";
 }
 
+const char * PotSumNotDividableByTwo::what()
+{
+    return "Pot sum can't be divided into two evenly\n";
+}
+

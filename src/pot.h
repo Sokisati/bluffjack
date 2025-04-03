@@ -24,6 +24,7 @@ public:
     void takeBetRaiseMatch(unsigned int amount,std::string playerName);
     unsigned int getMaxBetRaiseAllowed();
     unsigned int giveAllMoneyToPlayer();
+    unsigned int giveHalfPortionToPlayer();
     void printContent();
     Pot(unsigned int maxBetAmount);
     unsigned int getBetRaiseForRound();

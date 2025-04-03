@@ -252,6 +252,8 @@ HandDeck HandDeck::getOpenHand()
     return tempDeck;
 }
 
+
+
 void Deck::openCardSequantially()
 {
     //TODO: THIS IS UGLY
@@ -264,6 +266,14 @@ void Deck::openCardSequantially()
         }
     }
 
+}
+
+void Deck::openAllCards()
+{
+    for(int i=0; i<getNumberOfCards(); i++)
+    {
+        deckVector[i].openCard();
+    }
 }
 
 
