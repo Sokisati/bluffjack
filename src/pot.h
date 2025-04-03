@@ -29,7 +29,7 @@ public:
     Pot(unsigned int maxBetAmount);
     unsigned int getBetRaiseForRound();
     std::string getLastBetRaisePlayerName();
-
+    unsigned int getBlindBetPile();
 };
 
 #endif //POT_H

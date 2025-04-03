@@ -37,7 +37,7 @@ void Player::drawRandomCard(GameDeck &deckToBeDrawn)
 
 unsigned int Player::getNumberOfCardsPossesed()
 {
-    return this->numberOfCardsPossesed;
+    return handDeck.getNumberOfCards();
 }
 
 void Player::givePseudoCard(CardType cardType)
@@ -202,6 +202,7 @@ void Player::raiseGreenFlag()
 
 void Player::raiseRedFlag()
 {
+    std::cout<<"Player: "<<name<<" raises red flag.\n";
     this->flag = red;
 }
 
@@ -500,49 +501,10 @@ bool Bot::matchBetOrNot(unsigned int betRaiseForRound,HandDeck opponentDeck)
     double complexWinProb = getComplexWinProb(opponentDeck,getKnownDeck());
 
     float discreteValues[botParamPack.barDivider+1];
-    float realMatchValue = complexWinProb*botParamPack.maxBetRaise;
+    float realMatchValue = std::ceil(complexWinProb*botParamPack.maxBetRaise);
     unsigned int roundedValue;
 
-    for(int i=0; i<botParamPack.barDivider+1; i++)
-    {
-        discreteValues[i] = i*(static_cast<float>(botParamPack.maxBetRaise)/botParamPack.barDivider);
-    }
-
-    //see where it lies on our array (which value is the closest, rounding to top value if possible
-
-    for(int i=0; i<botParamPack.barDivider+1; i++)
-    {
-        if(realMatchValue>discreteValues[i])
-        {
-            continue;
-        }
-        else if(realMatchValue==discreteValues[i])
-        {
-            roundedValue = realMatchValue;
-            break;
-        }
-        else
-        {
-            if(i==0)
-            {
-                roundedValue = std::ceil(realMatchValue);
-                break;
-            }
-            if((discreteValues[i]-realMatchValue)<realMatchValue-discreteValues[i-1])
-            {
-                roundedValue = std::ceil(discreteValues[i]);
-                break;
-            }
-            else
-            {
-                roundedValue = std::ceil(discreteValues[i-1]);
-                break;
-            }
-        }
-    }
-
-
-    if(roundedValue>=betRaiseForRound)
+    if(realMatchValue>=betRaiseForRound)
     {
         return true;
     }
@@ -570,7 +532,6 @@ double Bot::getExpectedValue(GameDeck knownDeck,HandDeck opponentDeck)
         expectedValue += (aftermathWinProbability-initialWinProbability);
     }
 
-    std::cout<<expectedValue<<"\n";
     return expectedValue;
 }
 

@@ -48,7 +48,6 @@ void Table::dealInitialCards()
         glados.openCardSequantially();
     }
 
-
 }
 
 unsigned int Table::getPoorestWallet()
@@ -122,7 +121,6 @@ std::string Table::humanActionLoop()
         std::cout<<"Input invalid. Try again\n";
         }
     }
-
 }
 
 void Table::printLegalMovesForHuman()
@@ -154,11 +152,9 @@ void Table::printLegalMovesForHuman()
 
 }
 
-bool Table::questionLegality(std::string string)
+bool Table::questionLegality(const std::string &string)
 {
     unsigned int maxBetRaiseAllowed = getMaxBetRaiseAllowed();
-    unsigned int handSize = humanPlayer.getHandDeck().getNumberOfCards();
-    bool greenFlag = (humanPlayer.getFlagState()==green);
 
     if(string=="draw")
     {
@@ -170,7 +166,7 @@ bool Table::questionLegality(std::string string)
     }
     else if(string=="stand")
     {
-        return (humanPlayer.getFlagState()!=green);
+        return (humanPlayer.getFlagState()!=green && !pot.getUnmatchedBetState());
     }
     else if(string=="match")
     {
@@ -193,6 +189,7 @@ void Table::takeInputAction(const std::string &string)
      if(string=="draw")
      {
          humanPlayer.drawRandomCard(gameDeck);
+         humanPlayer.printHand();
      }
      else if(string=="raise")
      {
@@ -231,9 +228,9 @@ void Table::takeInputAction(const std::string &string)
 
 void Table::takeCounterAction(const std::string &string)
 {
-
     if(string=="raise")
     {
+
      if(glados.matchBetOrNot(pot.getBetRaiseForRound(),humanPlayer.getHandDeck()))
      {
          glados.matchBetRaise(pot);
@@ -249,6 +246,12 @@ void Table::takeCounterAction(const std::string &string)
     }
     else if(string=="stand"||string=="draw")
     {
+        if(pot.getBlindBetPile()!=0)
+        {
+            glados.raiseGreenFlag();
+            return;
+        }
+
         unsigned int betRaiseByGlados = glados.betRaiseOrNot(humanPlayer.getHandDeck(),glados.getKnownDeck(),maxBet);
         if(betRaiseByGlados>0)
         {
@@ -303,6 +306,9 @@ std::string Table::determineWinner()
     glados.openAllCards();
     humanPlayer.openAllCards();
 
+    glados.printHand();
+    humanPlayer.printHand();
+
     if(glados.getHandDeck().getGameValue()>humanPlayer.getHandDeck().getGameValue())
     {
      return "glados";
@@ -345,17 +351,33 @@ void Table::printPlayersContent()
     humanPlayer.printInfo();
 }
 
-void Table::commenceAGame()
+void Table::commenceARound()
 {
     std::string humanActionString;
     startRound();
     while(!endOfRound)
     {
-       humanActionString = humanActionLoop();
-       takeInputAction(humanActionString);
+        humanActionString = humanActionLoop();
         takeCounterAction(humanActionString);
         compareFlagsAndTakeAction();
     }
-    printPlayersContent();
+
+    glados.printFinancialContent();
+    humanPlayer.printFinancialContent();
+}
+
+void Table::commenceAGame()
+{
+    bool gameCanContinue = bothPlayersCanPlay();
+    while(gameCanContinue)
+    {
+        commenceARound();
+        gameCanContinue = bothPlayersCanPlay();
+    }
+}
+
+bool Table::bothPlayersCanPlay()
+{
+    return (glados.getMoney()>blindBet)&&humanPlayer.getMoney()>blindBet;
 }
 

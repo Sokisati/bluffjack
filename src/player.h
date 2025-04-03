@@ -62,10 +62,10 @@ public:
 struct BotParameterPack
 {
     //bar divider value shall be 2 if all we want is a simple ceil function
-    const unsigned int barDivider = 2;
+    const unsigned int barDivider = 5;
     const unsigned int maxBetRaise = 5;
     double getDrawProbabilityHuman(unsigned int handValue);
-    const double assumalWinProbWeight = 0.3;
+    const double assumalWinProbWeight = 0.4;
     const double bluffMultiplier = 0.5;
 };
 

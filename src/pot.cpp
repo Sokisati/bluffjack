@@ -85,6 +85,7 @@ unsigned int Pot::giveAllMoneyToPlayer()
     unsigned int totalMoney = getAllMoney();
     blindBetPile=0;
     betRaisePile=0;
+    unmatchedBetState=false;
     return totalMoney;
 }
 
@@ -97,6 +98,7 @@ unsigned int Pot::giveHalfPortionToPlayer()
     }
     blindBetPile/=2;
     betRaisePile/=2;
+    unmatchedBetState=false;
     return totalMoney/2;
 }
 
@@ -117,7 +119,7 @@ unsigned int Pot::getBetRaiseForRound()
 {
     if(unmatchedBetState)
     {
-        return (betRaisePile/2)+unmatchedBet;
+        return unmatchedBet+((betRaisePile-unmatchedBet)/2);
     }
     else
     {
@@ -128,4 +130,9 @@ unsigned int Pot::getBetRaiseForRound()
 std::string Pot::getLastBetRaisePlayerName()
 {
     return lastBetRaiseName;
+}
+
+unsigned int Pot::getBlindBetPile()
+{
+    return blindBetPile;
 }

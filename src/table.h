@@ -38,7 +38,7 @@ public:
     void startRound();
     std::string humanActionLoop();
     void printLegalMovesForHuman();
-    bool questionLegality(std::string string);
+    bool questionLegality(const std::string &string);
     void takeInputAction(const std::string &string);
     void takeCounterAction(const std::string &string);
     void compareFlagsAndTakeAction();
@@ -46,7 +46,9 @@ public:
     std::string determineWinner();
     void winAction(std::string winnerName);
     void printPlayersContent();
+    void commenceARound();
     void commenceAGame();
+    bool bothPlayersCanPlay();
 };
 
 
