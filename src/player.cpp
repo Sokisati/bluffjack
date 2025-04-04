@@ -499,10 +499,13 @@ bool Bot::matchBetOrNot(unsigned int betRaiseForRound,HandDeck opponentDeck)
 {
 
     double complexWinProb = getComplexWinProb(opponentDeck,getKnownDeck());
+    std::cout<<complexWinProb<<"\n";
 
-    float discreteValues[botParamPack.barDivider+1];
+    if(complexWinProb<0.5)
+    {
+        return false;
+    }
     float realMatchValue = std::ceil(complexWinProb*botParamPack.maxBetRaise);
-    unsigned int roundedValue;
 
     if(realMatchValue>=betRaiseForRound)
     {

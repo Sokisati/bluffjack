@@ -65,7 +65,7 @@ struct BotParameterPack
     const unsigned int barDivider = 5;
     const unsigned int maxBetRaise = 5;
     double getDrawProbabilityHuman(unsigned int handValue);
-    const double assumalWinProbWeight = 0.4;
+    const double assumalWinProbWeight = 0.2;
     const double bluffMultiplier = 0.5;
 };
 

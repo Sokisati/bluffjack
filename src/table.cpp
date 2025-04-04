@@ -47,6 +47,7 @@ void Table::dealInitialCards()
         humanPlayer.openCardSequantially();
         glados.openCardSequantially();
     }
+    glados.updateKnownDeck(humanPlayer.getHandDeck());
 
 }
 
@@ -228,9 +229,12 @@ void Table::takeInputAction(const std::string &string)
 
 void Table::takeCounterAction(const std::string &string)
 {
+    if(string=="draw")
+    {
+        gladosCardDrawCycle();
+    }
     if(string=="raise")
     {
-
      if(glados.matchBetOrNot(pot.getBetRaiseForRound(),humanPlayer.getHandDeck()))
      {
          glados.matchBetRaise(pot);
@@ -239,10 +243,6 @@ void Table::takeCounterAction(const std::string &string)
      {
          glados.raiseRedFlag();
      }
-    }
-    else if(string=="fold")
-    {
-        return;
     }
     else if(string=="stand"||string=="draw")
     {
