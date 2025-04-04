@@ -39,6 +39,7 @@ public:
     void createDebugDeck();
     GameDeck(unsigned int deckMultiplier);
     Card getRandomCard();
+    void replenishDeck();
 
 
 };

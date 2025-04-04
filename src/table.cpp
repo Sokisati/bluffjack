@@ -177,11 +177,6 @@ bool Table::questionLegality(const std::string &string)
     {
         return true;
     }
-    else
-    {
-        std::cout<<"Input not valid. Try again\n";
-        return false;
-    }
 }
 
 void Table::takeInputAction(const std::string &string)
@@ -373,6 +368,11 @@ void Table::commenceAGame()
     {
         commenceARound();
         gameCanContinue = bothPlayersCanPlay();
+        if(gameDeck.getNumberOfCards()<10)
+        {
+            gameDeck.replenishDeck();
+            glados.equaliseKnownDeck(gameDeck);
+        }
     }
 }
 

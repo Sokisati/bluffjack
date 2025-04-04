@@ -165,6 +165,12 @@ Card GameDeck::getRandomCard()
 
 }
 
+void GameDeck::replenishDeck()
+{
+    clearDeck();
+    fillCards();
+}
+
 unsigned int HandDeck::getTotalValue()
 {
     unsigned int totalValue = 0;
