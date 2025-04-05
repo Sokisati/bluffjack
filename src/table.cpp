@@ -22,7 +22,8 @@ this->maxBet = static_cast<float>(startingMoney)*maxBetRatio;
 
 void Table::debugEnv()
 {
-    commenceAGame();
+
+
 }
 
 unsigned int Table::getBlindBet()
