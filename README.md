@@ -21,7 +21,6 @@ This project is a C++ implementation of an intelligent bot designed for a custom
 - [Game Parameters and Their Influence](#game-parameters-and-their-influence)
 - [Win Probability Adjustments: Simple, Assumed, and Complex](#win-probability-adjustments-simple-assumed-and-complex)
 - [Conclusion](#conclusion)
-- [License](#license)
 
 ---
 
@@ -68,7 +67,7 @@ The game is a synthesis of Blackjack and Poker, where each player starts with an
   - The player with the highest hand value wins the pot. In the event of a tie, the pot is divided equally (any remainder carries over to the next round).
 - **Additional Rules:**  
   - A player may not draw more than three cards per round.  
-  - If a player chooses to draw a card, the drawn card must be taken without previewing and then immediately added to the hand.
+  - If a player chooses to draw a card, the drawn card must be taken without previewing and then immediately added to the hand.  
   - There is a mechanic for discarding cards secretly, which can be used strategically when only one opponent remains.
 
 ---
@@ -77,50 +76,61 @@ The game is a synthesis of Blackjack and Poker, where each player starts with an
 
 ### Win Probability Calculation
 
-For a given round, let:  
-- **m** be the number of known cards in the deck,  
-- **n** be the number of unknown cards (from the opponent’s perspective), and  
-- **s** be the number of combinations given by the binomial coefficient:  
-  \[
-  s = \binom{m}{n} = \frac{m!}{(m-n)! \, n!}
-  \]
+For a given round, let:
+- \( m \) be the number of known cards in the deck,
+- \( n \) be the number of unknown cards (from the opponent’s perspective), and
+- \( s \) be the number of combinations given by the binomial coefficient:
+
+$$
+s = \binom{m}{n} = \frac{m!}{(m-n)! \, n!}
+$$
 
 The win probability \( P_w \) is computed as:
-\[
+
+$$
 P_w = \frac{\sum_{k=1}^{s} P_k}{s}
-\]
+$$
+
 Here, \( P_k \) is not the probability of the \( k \)-th event occurring per se but the winning probability resulting from assigning the \( k \)-th combination of cards to the opponent. In any situation, this value will be either 1 or 0.
 
 ### Expected Value of Drawing a Card
 
 Since every possible combination is considered as an independent scenario, the expected value \( V \) of drawing an extra card is:
-\[
+
+$$
 V = \frac{\sum_{k=1}^{s} V_k}{s}
-\]
+$$
+
 where
-\[
+
+$$
 V_k = \sum_{j=1}^{(m-n)} \frac{(P_j - P_i)}{(m-n)}
-\]
+$$
+
 - \( P_j \) is the win probability after drawing the \( j \)-th card.
 - \( P_i \) is the win probability if no additional card is drawn.
-  
+
 Expanding these sums, the overall equation becomes:
-\[
+
+$$
 V = \sum_{k=1}^{s} \left( \frac{ \sum_{j=1}^{(m-n)} (P_j - P_i)}{(m-n) \, s} \right)
-\]
+$$
 
 A positive \( V \) suggests that drawing a card is a favorable move.
 
 ### Algorithmic Complexity
 
 The time complexity of the algorithm to compute these values is:
-\[
+
+$$
 O\left(\frac{n! \, (n-m)}{(n-m)! \, m!}\right)
-\]
+$$
+
 or, in a simplified form:
-\[
+
+$$
 O\left(\frac{n!}{(n-m-1)! \, m!}\right)
-\]
+$$
 
 ---
 
@@ -128,28 +138,21 @@ O\left(\frac{n!}{(n-m-1)! \, m!}\right)
 
 The bot uses a number of parameters to mimic intelligent play:
 
-- **Bluff Probability (P_bluff):**  
-  When the win probability \( P_w \) is below the critical threshold of 0.5, the bot may decide to place a large bet as a bluff.
+- **Bluff Probability**:  
+  When the win probability Pw is below the critical threshold of 0.5, the bot may decide to place a large bet as a bluff.
   
 - **Bluff Distribution:**  
   To ensure unpredictability in the bet amounts during a bluff, the bot uses a probability distribution. One suitable candidate for this is the Gaussian (normal) distribution:
-  \[
-  f(x) = \frac{1}{\sigma \sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}
-  \]
-  This distribution is parameterized by the mean (\( \mu \)) and the standard deviation (\( \sigma \)).
-
-- **Call Threshold:**  
-  The minimum win probability required for the bot to ‘call’ (i.e., to respond to an opponent’s raise) is defined by:
-  \[
-  m_{call} \leq P_w \, m_{rmax}
-  \]
-  where \( m_{rmax} \) is the maximum bet raise possible.
   
+  ![image](https://github.com/user-attachments/assets/cfbddedd-9dd0-4933-8236-e703567eebb6)
+  
+  This distribution is parameterized by the mean (mu) and the standard deviation (sigma).
+
 - **Bet Divider:**  
   To avoid exploitation of the betting raise rule, a conceptual threshold is set which limits the maximum bet the bot will consider.
 
 - **Minimum Win Probability for Raising:**  
-  The bot will only increase the bet if its win probability exceeds a predefined threshold (\( P_{rmin} \)).
+  The bot will only increase the bet if its win probability exceeds a predefined threshold .
 
 ---
 
@@ -157,19 +160,19 @@ The bot uses a number of parameters to mimic intelligent play:
 
 Key game parameters include:
 
-- **Starting Money (m_start):**  
+- **Starting Money**:  
   The amount of money each player starts with. This value is chosen such that subsequent calculations with other parameters do not result in cumbersome decimals.
   
-- **Blind Bet Ratio (Q_blind):**  
+- **Blind Bet Ratio** :  
   The fraction of the starting money that each player must place in the pot at the beginning of every round.
   
-- **Maximum Raise Ratio (Q_maxraise):**  
+- **Maximum Raise Ratio**:  
   The maximum amount by which the bet can be increased relative to the blind bet.
 
-These game parameters directly influence the bot’s internal parameters. For example, the minimum win probability for calling, \( P_{cmin} \), can be derived as:
-\[
-P_{cmin} = 1 - (Q_{blind} - Q_{maxraise})
-\]
+These game parameters directly influence the bot’s internal parameters. For example, the minimum win probability for calling, \( P_{\text{cmin}} \), can be derived as:
+
+Pcmin = 1-(Qblind - Qmaxraise)
+
 This formulation allows the bot to adapt its strategy based on the game’s length and betting dynamics.
 
 ---
@@ -178,38 +181,20 @@ This formulation allows the bot to adapt its strategy based on the game’s leng
 
 The bot distinguishes between three win probability calculations:
 
-1. **Simple Win Probability (\( P_{simple} \))**  
-   Calculated solely on the known and unknown card counts. For example, if there are four unknown cards and two favorable outcomes, then \( P_{simple} = \frac{2}{4} \).
+1. **Simple Win Probability**  
+   Calculated solely on the known and unknown card counts.
 
-2. **Assumed Win Probability (\( P_{assumed} \))**  
+2. **Assumed Win Probability* 
    This value is estimated by constructing game trees based on the opponent’s possible moves. In cases like ties, probabilities are adjusted (e.g., multiplied by 0.5).
 
-3. **Complex Win Probability (\( P_{complex} \))**  
+3. **Complex Win Probability** (\( P_{\text{complex}} \))  
    A weighted combination of the two probabilities above:
-   \[
-   P_{complex} = (1 - W_{assumed}) \cdot P_{simple} + W_{assumed} \cdot P_{assumed}
-   \]
-   where \( W_{assumed} \) is the weight factor representing the confidence in the assumed probability.  
-   
-   **Example:**  
-   Given a deck with cards `[2, 4, 7, 9, 10, 10, 11]` (with 11 representing an Ace) and the bot’s hand of `[10, 7]` against an opponent’s visible 10:
-   - The game tree might yield several win probability values for different terminal states.
-   - After averaging (including adjustments for tie situations), suppose \( P_{assumed} = 0.4164 \).
-   - If the simple calculation gives \( P_{simple} = 0.5 \) and \( W_{assumed} \) is chosen as 0.2, then:
-     \[
-     P_{complex} = 0.8 \times 0.5 + 0.2 \times 0.4164 \approx 0.4832
-     \]
-   This combined value helps the bot decide whether to call, raise, or fold based on real-time evaluations of the game state.
 
----
+: [ (1- Wassumed )* Psimple   + Wassumed  * Passumed) ]
+
+   where Wassumed is the weight factor representing the confidence in the assumed probability.
 
 ## Conclusion
 
 This C++ project models a bot for a complex card game that combines elements of chance, skill, and psychological strategy. By using detailed probability calculations, expected value assessments, and dynamic parameter adjustments, the bot is designed to make informed decisions in a game where both the rules and human behavior play critical roles. The interplay between game mechanics and bot strategy ensures that even as the game evolves, the bot adapts its decisions based on both statistical evidence and modeled opponent behavior.
-
----
-
-## License
-
-N/A. I mean, I don't need it, I guess?
 
