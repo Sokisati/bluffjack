@@ -1,5 +1,7 @@
 # Game Bot for Strategic Card Game
 
+Important note: All the code and the logic behind it belongs entirely to me.
+
 This project is a C++ implementation of an intelligent bot designed for a custom card game. The game itself is a hybrid inspired by popular games such as Blackjack, Poker, and even strategic board games like Chess and Go. The design philosophy behind both the game and the bot emphasizes simplicity in rules, while ensuring that the strategic depth arises from the interplay of probabilities, betting mechanics, and human psychology.
 
 ---
