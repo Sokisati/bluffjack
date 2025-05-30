@@ -195,6 +195,8 @@ The bot distinguishes between three win probability calculations:
 : [ (1- Wassumed )* Psimple   + Wassumed  * Passumed) ]
 
    where Wassumed is the weight factor representing the confidence in the assumed probability.
+   
+![Untitled-1](https://github.com/user-attachments/assets/542ed1a7-3ddd-4d7e-8397-31b5c7516440)
 
 ## Conclusion
 
